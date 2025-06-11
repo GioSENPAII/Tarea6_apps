@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'ar_screen.dart';
 
 void main() {
@@ -30,47 +29,36 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _requestCameraPermission();
+    _simulatePermissionRequest();
   }
 
-  // Función para solicitar permiso de cámara
-  Future<void> _requestCameraPermission() async {
-    print('Solicitando permiso de cámara...');
+  // Simular solicitud de permiso de cámara
+  Future<void> _simulatePermissionRequest() async {
+    print('Simulando solicitud de permiso de cámara...');
 
-    final status = await Permission.camera.request();
+    // Simular delay de solicitud de permiso
+    await Future.delayed(Duration(seconds: 1));
 
     setState(() {
-      _cameraPermissionGranted = status == PermissionStatus.granted;
+      _cameraPermissionGranted = true;
     });
 
-    if (_cameraPermissionGranted) {
-      print('Permiso de cámara concedido');
-    } else {
-      print('Permiso de cámara denegado');
-      _showPermissionDialog();
-    }
+    print('Permiso de cámara simulado como concedido');
   }
 
-  // Mostrar diálogo si se deniega el permiso
-  void _showPermissionDialog() {
+  // Mostrar diálogo informativo sobre permisos
+  void _showPermissionInfo() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Permiso Requerido'),
-          content: Text('Esta aplicación necesita acceso a la cámara para funcionar correctamente.'),
+          title: Text('Información de Permisos'),
+          content: Text('En una aplicación real, aquí se solicitarían los permisos de cámara necesarios para AR. Por ahora están simulados.'),
           actions: [
             TextButton(
-              child: Text('Cancelar'),
+              child: Text('Entendido'),
               onPressed: () {
                 Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Configuración'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                openAppSettings();
               },
             ),
           ],
@@ -98,9 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 20),
             Text(
               _cameraPermissionGranted
-                  ? 'Permiso de cámara concedido'
-                  : 'Permiso de cámara requerido',
+                  ? 'Permiso de cámara concedido (simulado)'
+                  : 'Verificando permisos...',
               style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
             ),
             SizedBox(height: 40),
             ElevatedButton(
@@ -111,12 +100,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => ARScreen()),
                 );
               }
-                  : _requestCameraPermission,
-              child: Text(_cameraPermissionGranted ? 'Abrir AR' : 'Solicitar Permiso'),
+                  : null,
+              child: Text(_cameraPermissionGranted ? 'Abrir AR' : 'Cargando...'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                backgroundColor: _cameraPermissionGranted ? Colors.green : Colors.blue,
+                backgroundColor: _cameraPermissionGranted ? Colors.green : Colors.grey,
               ),
+            ),
+            SizedBox(height: 20),
+            TextButton(
+              onPressed: _showPermissionInfo,
+              child: Text('Información sobre permisos'),
             ),
           ],
         ),
