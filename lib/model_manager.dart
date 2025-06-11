@@ -28,7 +28,7 @@ class ModelManager {
   // Modelos predefinidos
   void initializeDefaultModels() {
     _models['duck'] = Model3D(
-      name: 'Pato',
+      name: 'Pato 3D',
       path: 'assets/models/Duck.glb',
       isLocal: true,
       scale: 0.5,

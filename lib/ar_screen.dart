@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'model_manager.dart';
+import 'model_3d_viewer.dart';
 
 class PlacedObject {
   final String id;
@@ -112,13 +113,51 @@ class _ARScreenState extends State<ARScreen> {
                 SizedBox(height: 10),
                 Text('🎮 Gestos de manipulación:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 5),
-                Text('• Arrastra: Mover objeto'),
-                Text('• Pellizca: Cambiar tamaño'),
-                Text('• Rota con 2 dedos: Girar objeto'),
+                Text('• Un dedo: Mover objeto'),
+                Text('• Dos dedos: Pellizcar para escalar'),
+                Text('• Dos dedos: Rotar para girar'),
                 Text('• Botón restore: Restablecer'),
+                SizedBox(height: 10),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.shade300),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '📦 Sobre los modelos 3D:',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '• El pato carga un archivo GLTF real (Duck.glb)',
+                        style: TextStyle(fontSize: 12, color: Colors.green.shade600),
+                      ),
+                      Text(
+                        '• Se muestra como representación visual',
+                        style: TextStyle(fontSize: 12, color: Colors.green.shade600),
+                      ),
+                      Text(
+                        '• El archivo 3D real está cargado en memoria',
+                        style: TextStyle(fontSize: 12, color: Colors.green.shade600),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             actions: [
+              TextButton(
+                child: Text('Más Info'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _showModelInfo();
+                },
+              ),
               TextButton(
                 child: Text('¡Entendido!', style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () => Navigator.of(context).pop(),
@@ -289,8 +328,7 @@ class _ARScreenState extends State<ARScreen> {
         itemCount: models.length,
         itemBuilder: (context, index) {
           final model = models[index];
-          final modelId = _modelManager.getAvailableModels().indexOf(model) == 0 ? 'duck' :
-          _modelManager.getAvailableModels().indexOf(model) == 1 ? 'box' : 'sphere';
+          final modelId = ['duck', 'box', 'sphere'][index];
           final isSelected = _selectedModelId == modelId;
 
           return GestureDetector(
@@ -563,101 +601,28 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   Widget _build3DModel(String modelId, double size, bool isSelected) {
-    final model = _modelManager.getModel(modelId);
-
-    // Si el modelo GLTF está cargado, mostrar información del modelo real
-    if (model != null && model.isLoaded && model.data != null) {
-      switch (modelId) {
-        case 'duck':
-          return _buildDuckModel3D(size, isSelected, model);
-        case 'box':
-          return _buildBoxModel3D(size, isSelected);
-        case 'sphere':
-          return _buildSphereModel3D(size, isSelected);
-        default:
-          return _buildDefaultModel3D(size, isSelected);
-      }
-    } else {
-      return _buildLoadingModel(size, isSelected, modelId);
+    // Usar el visor 3D real solo para el pato
+    if (modelId == 'duck') {
+      return Simple3DViewer(
+        modelId: modelId,
+        size: size,
+        isSelected: isSelected,
+      );
     }
+
+    // Fallback para otros modelos
+    return _buildFallbackModel(modelId, size, isSelected);
   }
 
-  Widget _buildDuckModel3D(double size, bool isSelected, Model3D model) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment(-0.2, -0.3),
-          colors: [
-            Colors.yellow.shade200,
-            Colors.yellow.shade400,
-            Colors.orange.shade500,
-          ],
-          stops: [0.2, 0.6, 1.0],
-        ),
-        borderRadius: BorderRadius.circular(size * 0.3),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: Offset(2, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Indicador de modelo 3D real
-          Positioned(
-            top: 5,
-            right: 5,
-            child: Container(
-              padding: EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '3D',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          // Información del modelo
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.pets,
-                  size: size * 0.4,
-                  color: Colors.white,
-                ),
-                Text(
-                  'GLTF',
-                  style: TextStyle(
-                    fontSize: size * 0.08,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  '${(model.data!.length / 1024).toInt()}KB',
-                  style: TextStyle(
-                    fontSize: size * 0.06,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildFallbackModel(String modelId, double size, bool isSelected) {
+    switch (modelId) {
+      case 'box':
+        return _buildBoxModel3D(size, isSelected);
+      case 'sphere':
+        return _buildSphereModel3D(size, isSelected);
+      default:
+        return _buildDefaultModel3D(size, isSelected);
+    }
   }
 
   Widget _buildBoxModel3D(double size, bool isSelected) {
