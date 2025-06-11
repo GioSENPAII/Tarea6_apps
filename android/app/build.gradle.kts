@@ -6,8 +6,8 @@ plugins {
 
 android {
     namespace = "com.example.ar_flutter_app"
-    compileSdk = 35  // Actualizado para compatibilidad
-    ndkVersion = "27.0.12077973"  // Actualizado para compatibilidad
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -20,16 +20,33 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ar_flutter_app"
-        minSdk = 24
-        targetSdk = 35  // Actualizado
+        minSdk = 21  // Reducido para mayor compatibilidad
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        // Multiarch support
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
     }
 
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+
+    // Configuración para WebView
+    buildFeatures {
+        viewBinding = true
     }
 }
 

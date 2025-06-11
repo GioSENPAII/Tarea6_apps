@@ -1,21 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Permisos necesarios para AR -->
+    <!-- Permisos necesarios -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- Características requeridas para ARCore -->
-    <uses-feature android:name="android.hardware.camera.ar" android:required="true"/>
-    <uses-feature android:name="android.hardware.camera" android:required="true"/>
+    <!-- Características opcionales para AR (no requeridas) -->
+    <uses-feature
+        android:name="android.hardware.camera.ar"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
 
     <application
-        android:label="ar_flutter_app"
+        android:label="AR Flutter App"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
 
-        <!-- Metadata requerida para ARCore -->
-        <meta-data android:name="com.google.ar.core" android:value="required" />
+        <!-- Metadata opcional para ARCore -->
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="optional" />
 
         <activity
             android:name=".MainActivity"
@@ -26,19 +32,26 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+
+            <!-- Tema normal -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme"
-                />
+                android:resource="@style/NormalTheme" />
+
+            <!-- Intent filter para launcher -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Flutter embedding version -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+
+    <!-- Queries para navegador -->
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
