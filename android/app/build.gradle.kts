@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ar_flutter_app"
-        minSdk = 21  // Reducido para mayor compatibilidad
+        minSdk = 24  // Reducido para mayor compatibilidad
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

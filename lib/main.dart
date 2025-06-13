@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'ar_screen.dart';
 
 void main() {
@@ -25,46 +26,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _cameraPermissionGranted = false;
+  bool _isCheckingPermission = true;
 
   @override
   void initState() {
     super.initState();
-    _simulatePermissionRequest();
+    _checkPermissions();
   }
 
-  // Simular solicitud de permiso de cámara
-  Future<void> _simulatePermissionRequest() async {
-    print('Simulando solicitud de permiso de cámara...');
+  Future<void> _checkPermissions() async {
+    // Solicitar permiso de cámara
+    var status = await Permission.camera.status;
 
-    // Simular delay de solicitud de permiso
-    await Future.delayed(Duration(seconds: 1));
+    if (!status.isGranted) {
+      status = await Permission.camera.request();
+    }
 
     setState(() {
-      _cameraPermissionGranted = true;
+      _cameraPermissionGranted = status.isGranted;
+      _isCheckingPermission = false;
     });
-
-    print('Permiso de cámara simulado como concedido');
-  }
-
-  // Mostrar diálogo informativo sobre permisos
-  void _showPermissionInfo() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Información de Permisos'),
-          content: Text('En una aplicación real, aquí se solicitarían los permisos de cámara necesarios para AR. Por ahora están simulados.'),
-          actions: [
-            TextButton(
-              child: Text('Entendido'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -75,24 +56,26 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.blue,
       ),
       body: Center(
-        child: Column(
+        child: _isCheckingPermission
+            ? CircularProgressIndicator()
+            : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.camera_alt,
+              Icons.view_in_ar,
               size: 100,
-              color: _cameraPermissionGranted ? Colors.green : Colors.red,
+              color: _cameraPermissionGranted ? Colors.blue : Colors.grey,
             ),
             SizedBox(height: 20),
             Text(
               _cameraPermissionGranted
-                  ? 'Permiso de cámara concedido (simulado)'
-                  : 'Verificando permisos...',
+                  ? '¡Permiso de cámara concedido!'
+                  : 'Permiso de cámara denegado',
               style: TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 40),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: _cameraPermissionGranted
                   ? () {
                 Navigator.push(
@@ -100,17 +83,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => ARScreen()),
                 );
               }
-                  : null,
-              child: Text(_cameraPermissionGranted ? 'Abrir AR' : 'Cargando...'),
+                  : _checkPermissions,
+              icon: Icon(_cameraPermissionGranted ? Icons.camera : Icons.refresh),
+              label: Text(_cameraPermissionGranted ? 'Abrir AR' : 'Solicitar permisos'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                backgroundColor: _cameraPermissionGranted ? Colors.green : Colors.grey,
+                backgroundColor: _cameraPermissionGranted ? Colors.blue : Colors.orange,
               ),
-            ),
-            SizedBox(height: 20),
-            TextButton(
-              onPressed: _showPermissionInfo,
-              child: Text('Información sobre permisos'),
             ),
           ],
         ),

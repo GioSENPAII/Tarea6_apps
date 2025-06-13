@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:8.7.3"
+        classpath "com.android.tools.build:gradle:8.1.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -24,6 +24,15 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(':app')
+
+    // Parche para ar_flutter_plugin
+    afterEvaluate { project ->
+        if (project.name == "ar_flutter_plugin") {
+            project.android {
+                namespace "io.github.olexale.arflutter"
+            }
+        }
+    }
 }
 
 tasks.register("clean", Delete) {
